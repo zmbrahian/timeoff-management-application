@@ -27,4 +27,4 @@ jobs:
       - name: Installing chromedriver
         run: mkdir -p /tmp/bin && curl -o /tmp/bin/chromedriver https://chromedriver.storage.googleapis.com/108.0.5359.71/chromedriver_linux64.zip && chmod u+x /tmp/bin/chromedriver && export PATH="$PATH:/tmp/bin/"
       - name: Run Unit tests
-        run: npm test
+        run: export USE_CHROME=1 && npm test
