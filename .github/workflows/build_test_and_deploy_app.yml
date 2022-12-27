@@ -18,13 +18,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: nanasess/setup-chromedriver@v1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies    
         run: npm install
-      - name: Installing chromedriver
-        run: mkdir -p /tmp/bin && curl -o /tmp/bin/chromedriver https://chromedriver.storage.googleapis.com/108.0.5359.71/chromedriver_linux64.zip && chmod u+x /tmp/bin/chromedriver && export PATH="$PATH:/tmp/bin/"
+      - name: Set up chromedriver
+        run: |
+          export DISPLAY=:99
+          chromedriver --url-base=/wd/hub &
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
       - name: Run Unit tests
         run: export USE_CHROME=1 && npm test
