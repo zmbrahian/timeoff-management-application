@@ -7,3 +7,4 @@ node_modules/
 *.sqlite
 *.terraform*
 *.tfstate*
+*.tfvars

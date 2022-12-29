@@ -34,15 +34,31 @@ jobs:
     steps:
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
-      -
-        name: Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Build and push
+      - name: Build and push
         uses: docker/build-push-action@v3
         with:
           push: true
           tags: zmbrahian/timeoff-webapp:latest
+
+  terraform-infrastructure-deployment:
+    needs: build-and-push-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Run replace env vars script
+        run: |
+          cd ./infrastructure_as_code/terraform/environments/timeoff-prod/scripts
+          sh replaceEnvValues.sh
+        shell: bash
+      - name: Run terraform plan
+        run: |
+          cd ./infrastructure_as_code/terraform/environments/timeoff-prod/
+          terraform init
+          terraform plan --var-file values.tfvars -out terraform-plan

@@ -27,3 +27,8 @@ variable "aws_security_group_id" {
     type = string
     description = "ID of security group - Mandatory"
 }
+
+variable "certificate_arn" {
+    type = string
+    description = "ACM certificate arn for HTTPS listener"
+}

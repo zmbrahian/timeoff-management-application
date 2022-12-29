@@ -17,7 +17,7 @@ resource "aws_ecs_cluster_capacity_providers" "prod_cluster_capacity_provider" {
 resource "aws_ecs_task_definition" "prod_timeoff_task_definition" {
   family = "prod_timeoff_webapp"
   network_mode = "awsvpc"
-  execution_role_arn = "arn:aws:iam::030359054911:role/ecsTaskExecutionRole"
+  execution_role_arn = var.execution_role_arn
   requires_compatibilities = ["FARGATE"]
   cpu       = 256
   memory    = 512
@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "prod_timeoff_task_definition" {
       name      = "timeoff-webapp-prod"
       image     = "zmbrahian/timeoff-webapp:1.0"
       repositoryCredentials = {
-        credentialsParameter = "arn:aws:secretsmanager:us-east-1:030359054911:secret:docker/authkey-pZctuB"
+        credentialsParameter = var.docker_credential_secret_arn
       }
       cpu       = 256
       memory    = 512

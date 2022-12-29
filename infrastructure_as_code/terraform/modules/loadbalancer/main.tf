@@ -43,7 +43,7 @@ resource "aws_alb_listener" "https" {
   protocol          = "HTTPS"
  
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = "arn:aws:acm:us-east-1:030359054911:certificate/468e9e18-d1fc-40a3-afeb-653aecc0de1e"
+  certificate_arn   = var.certificate_arn
  
   default_action {
     target_group_arn = aws_lb_target_group.prod_timeoff_target_group.id

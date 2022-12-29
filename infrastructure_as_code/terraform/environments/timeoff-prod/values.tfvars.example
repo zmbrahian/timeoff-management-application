@@ -1,0 +1,3 @@
+execution_role_arn = "%EXECUTION_ROLE_ARN%"
+docker_credential_secret_arn = "%DOCKER_SECRET_ARN%"
+certificate_arn = "%CERTIFICATE_ARN%"
