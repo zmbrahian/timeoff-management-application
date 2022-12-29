@@ -8,23 +8,41 @@ on:
     branches: [ master ]
 
 jobs:
-  build-and-test:
+  build-and-test-app:
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
       - uses: nanasess/setup-chromedriver@v1
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 13.x
         uses: actions/setup-node@v3
         with:
           node-version: 13.x
-      - name: Install dependencies    
-        run: npm install
-      - name: Set up chromedriver
+      - name: Installing dependencies and initializing app 
         run: |
-          export DISPLAY=:99
-          chromedriver --url-base=/wd/hub &
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
+          npm install
+          nohup npm start &
       - name: Run Unit tests
-        run: export USE_CHROME=1 && npm test
+        run: |
+          export USE_CHROME=1 && npm test
+  
+  build-and-push-docker-image:
+    needs: build-and-test-app
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: zmbrahian/timeoff-webapp:latest
