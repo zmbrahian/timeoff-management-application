@@ -51,6 +51,9 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      EXECUTION_ROLE_ARN: ${{ secrets.EXECUTION_ROLE_ARN }}
+      DOCKER_SECRET_ARN: ${{ secrets.DOCKER_SECRET_ARN }}
+      CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
 
     steps:
       - name: Setup Terraform
