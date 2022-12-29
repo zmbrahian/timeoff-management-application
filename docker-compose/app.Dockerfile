@@ -18,7 +18,7 @@ FROM node:13-alpine as dependencies
 
 ENV NODE_ENV production
 
-COPY package.json  .
+COPY ./package.json  .
 RUN npm install 
 RUN npm install mysql
 
@@ -31,11 +31,11 @@ LABEL org.label-schema.docker.cmd="docker run -d -p 3000:3000 --name alpine_time
 RUN adduser --system app --home /app
 USER app
 WORKDIR /app
-COPY . /app
+COPY ./ /app
 COPY --from=dependencies node_modules ./node_modules
 
 ENV NODE_ENV production
 
-CMD npm start
+CMD sleep 10 && npm start
 
 EXPOSE 3000
