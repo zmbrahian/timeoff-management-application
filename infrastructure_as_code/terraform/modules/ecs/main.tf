@@ -62,6 +62,9 @@ resource "aws_ecs_service" "prod_timeoff_service" {
   cluster         = aws_ecs_cluster.prod_ecs_cluster.id
   task_definition = aws_ecs_task_definition.prod_timeoff_task_definition.arn
   desired_count   = 1
+  deployment_minimum_healthy_percent = 100
+  deployment_maximum_percent = 200
+
 
   load_balancer {
     target_group_arn = var.aws_lb_target_group_arn
