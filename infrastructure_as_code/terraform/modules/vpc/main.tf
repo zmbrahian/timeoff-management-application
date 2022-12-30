@@ -151,3 +151,21 @@ resource "aws_security_group" "allow_incoming_http_https" {
     Name = "allow_incoming_http_https"
   }
 }
+
+resource "aws_security_group" "allow_incoming_mysql" {
+  name        = "allow_mysql"
+  description = "Allow MySQL inbound traffic from local VPC"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  ingress {
+    description      = "HTTP from ANY"
+    from_port        = 3306
+    to_port          = 3306
+    protocol         = "tcp"
+    cidr_blocks      = ["192.168.0.0/16"]
+  }
+
+  tags = {
+    Name = "allow_incoming_mysql"
+  }
+}

@@ -23,7 +23,7 @@ variable "private_subnet_id_b" {
     description = "ID of the private B subnet - Mandatory"
 }
 
-variable "aws_security_group_id" {
+variable "aws_web_security_group_id" {
     type = string
     description = "ID of security group - Mandatory"
 }

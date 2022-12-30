@@ -1,3 +1,6 @@
 execution_role_arn = "%EXECUTION_ROLE_ARN%"
 docker_credential_secret_arn = "%DOCKER_SECRET_ARN%"
 certificate_arn = "%CERTIFICATE_ARN%"
+mysql_database_name = "%MYSQL_DATABASE_NAME%"
+mysql_database_username = "%MYSQL_DATABASE_USERNAME%"
+mysql_database_password = "%MYSQL_DATABASE_PASSWORD%"

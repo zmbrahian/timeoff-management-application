@@ -1,6 +1,12 @@
 #!/bin/bash
-VALUES_FILE='../values.tfvars'
-VALUES_FILE_EXAMPLE='../values.tfvars.example'
+#VALUES_FILE='../values.tfvars'
+#VALUES_FILE_EXAMPLE='../values.tfvars.example'
+# This script receives two files as arguments and pass them to replace env vars marked as follow example %EXAMPLE%
+# first one is the final version file and the second one is the example that contains env vars enclosed between %% characteres
+
+VALUES_FILE=$1
+VALUES_FILE_EXAMPLE=$2
+
 
 if [[ -f "$VALUES_FILE_EXAMPLE" ]]; then
     cp $VALUES_FILE_EXAMPLE "${VALUES_FILE_EXAMPLE}.bk"

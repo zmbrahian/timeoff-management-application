@@ -24,7 +24,7 @@ resource "aws_ecs_task_definition" "prod_timeoff_task_definition" {
   container_definitions = jsonencode([
     {
       name      = "timeoff-webapp-prod"
-      image     = "zmbrahian/timeoff-webapp:1.0"
+      image     = "zmbrahian/timeoff-webapp:latest"
       repositoryCredentials = {
         credentialsParameter = var.docker_credential_secret_arn
       }
@@ -70,7 +70,7 @@ resource "aws_ecs_service" "prod_timeoff_service" {
   }
 
   network_configuration {
-    security_groups    = ["${var.aws_security_group_id}"]
-    subnets            = ["${var.private_subnet_id_a}", "${var.private_subnet_id_b}"]
+    security_groups    = [var.aws_web_security_group_id]
+    subnets            = [var.private_subnet_id_a, var.private_subnet_id_b]
   }
 }
