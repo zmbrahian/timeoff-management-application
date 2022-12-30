@@ -56,12 +56,12 @@ jobs:
       CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
 
     steps:
+      - uses: actions/checkout@v3
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
       - name: Run replace env vars script
         run: |
-          cd ./infrastructure_as_code/terraform/environments/timeoff-prod/scripts
-          sh replaceEnvValues.sh
+          (cd ./infrastructure_as_code/terraform/environments/timeoff-prod/scripts && ./replaceEnvValues.sh)
         shell: bash
       - name: Run terraform plan
         run: |
