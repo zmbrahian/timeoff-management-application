@@ -47,6 +47,7 @@ jobs:
         id: checkdatabase
         shell: bash
         run: |
+          cd ./infrastructure_as_code/terraform/environments/timeoff-prod/
           terraform init
           MYSQL_DATABASE_HOSTNAME=$(terraform output -raw terraform output -raw db_instance_address)
           if [ "$MYSQL_DATABASE_HOSTNAME" == "" ]; then
