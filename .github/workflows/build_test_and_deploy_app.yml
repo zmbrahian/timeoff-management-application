@@ -62,7 +62,7 @@ jobs:
         shell: bash
   
   build-and-push-docker-image:
-    needs: [ build-and-test-app, check_infrastructure_existence ]
+    needs: [ build-and-test-app, check_database_existence ]
     runs-on: ubuntu-latest
     if: needs.check_infrastructure_existence.outputs.databasepresent == 'true'
 
@@ -82,7 +82,7 @@ jobs:
           tags: zmbrahian/timeoff-webapp:latest
 
   terraform-infrastructure-deployment:
-    needs: check_infrastructure_existence
+    needs: check_database_existence
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
