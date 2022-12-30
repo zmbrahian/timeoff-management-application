@@ -140,6 +140,14 @@ resource "aws_security_group" "allow_incoming_http_https" {
     cidr_blocks      = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description      = "Custom HTTP from local VPC"
+    from_port        = 3000
+    to_port          = 3000
+    protocol         = "tcp"
+    cidr_blocks      = ["192.168.0.0/16"]
+  }
+
   egress {
     from_port        = 0
     to_port          = 0
