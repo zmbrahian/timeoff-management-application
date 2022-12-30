@@ -1,5 +1,6 @@
 name: build_test_and_deploy_app.yml
 run-name: Execution triggered by ${{ github.actor }}
+concurrency: production_environment
 
 on:
   push:
@@ -35,44 +36,58 @@ jobs:
     needs: build-and-test-app
     outputs: 
       databasepresent: ${{ steps.checkdatabase.outputs.databasepresent }}
-      mysql_database_hostname: ${{ steps.checkdatabase.outputs.MYSQL_DATABASE_HOSTNAME }}
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       MYSQL_DATABASE_NAME: ${{ secrets.MYSQL_DATABASE_NAME }}
       MYSQL_DATABASE_USERNAME: ${{ secrets.MYSQL_DATABASE_USERNAME }}
       MYSQL_DATABASE_PASSWORD: ${{ secrets.MYSQL_DATABASE_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
       - name: Check database presence
         id: checkdatabase
         shell: bash
         run: |
           cd ./infrastructure_as_code/terraform/environments/timeoff-prod/
-          terraform init
-          MYSQL_DATABASE_HOSTNAME=$(terraform output -raw db_instance_address)
+          MYSQL_DATABASE_HOSTNAME=$(aws rds describe-db-instances --region us-east-1 | grep prod-timeoff-rds | grep -i address | awk '{ print $2 }' | tr -d "," | tr -d '"')
           if [ "$MYSQL_DATABASE_HOSTNAME" == "" ]; then
             echo "databasepresent=false" >> $GITHUB_OUTPUT
           else
             echo "databasepresent=true" >> $GITHUB_OUTPUT
             echo "MYSQL_DATABASE_HOSTNAME=$MYSQL_DATABASE_HOSTNAME" >> $GITHUB_OUTPUT
+            echo $MYSQL_DATABASE_HOSTNAME
           fi
       - name: Run replace db.json file if database is present
         if: (steps.checkdatabase.outputs.databasepresent == 'true')
+        env:
+          MYSQL_DATABASE_HOSTNAME: ${{ steps.checkdatabase.outputs.MYSQL_DATABASE_HOSTNAME }}
         run: |
           ./infrastructure_as_code/terraform/environments/timeoff-prod/scripts/replaceEnvValues.sh config/db.json config/db.json.example
         shell: bash
+      - uses: actions/upload-artifact@master
+        with:
+          name: db.json
+          path: config/db.json
   
   build-and-push-docker-image:
-    needs: [ build-and-test-app, check_database_existence ]
+#    needs: [ build-and-test-app, check_database_existence ]
+    needs: check_database_existence
     runs-on: ubuntu-latest
-    if: needs.check_infrastructure_existence.outputs.databasepresent == 'true'
+    if: needs.check_database_existence.outputs.databasepresent == 'true'
 
     steps:
       - uses: actions/checkout@v3
+      - name: Delete db.json template
+        run: rm -f config/db.json
+      - uses: actions/download-artifact@master
+        with:
+          name: db.json
+          path: config
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
       - name: Login to Docker Hub
@@ -83,13 +98,17 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
+          context: .
           push: true
           tags: zmbrahian/timeoff-webapp:latest
 
   terraform-infrastructure-deployment:
-    needs: check_database_existence
+    needs: [check_database_existence, build-and-push-docker-image]
     runs-on: ubuntu-latest
-    if: always()
+    if: |
+      always() &&
+      (needs.check_database_existence.result == 'success' || needs.check_database_existence.result == 'failure') &&
+      (needs.build-and-push-docker-image.result == 'success' || needs.build-and-push-docker-image.result == 'skipped')
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
