@@ -19,6 +19,15 @@ resource "aws_lb_target_group" "prod_timeoff_target_group" {
   protocol = "HTTP"
   vpc_id   = var.vpc_id
   target_type = "ip"
+
+  health_check {
+    enabled = true
+    healthy_threshold = 3
+    interval = 30
+    port = "3000"
+    path = "/login"
+    protocol = "HTTP"
+  }
 }
 
 resource "aws_alb_listener" "http" {
