@@ -16,19 +16,19 @@ jobs:
     steps:
       - name: Hello World
         run: echo "Hello World"
-#      - uses: actions/checkout@v3
-#      - uses: nanasess/setup-chromedriver@v1
-#      - name: Use Node.js 13.x
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version: 13.x
-#      - name: Installing dependencies and initializing app 
-#        run: |
-#          npm install
-#          nohup npm start &
-#      - name: Run Unit tests
-#        run: |
-#          export USE_CHROME=1 && npm test
+      - uses: actions/checkout@v3
+      - uses: nanasess/setup-chromedriver@v1
+      - name: Use Node.js 13.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 13.x
+      - name: Installing dependencies and initializing app 
+        run: |
+          npm install
+          nohup npm start &
+      - name: Run Unit tests
+        run: |
+          export USE_CHROME=1 && npm test
 
   check_database_existence:
 
