@@ -62,9 +62,15 @@ resource "aws_ecs_service" "prod_timeoff_service" {
   cluster         = aws_ecs_cluster.prod_ecs_cluster.id
   task_definition = aws_ecs_task_definition.prod_timeoff_task_definition.arn
   desired_count   = 1
+  health_check_grace_period_seconds = 0
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent = 200
 
+  capacity_provider_strategy {
+      base              = 1
+      capacity_provider = "FARGATE"
+      weight            = 100
+  }
 
   load_balancer {
     target_group_arn = var.aws_lb_target_group_arn
@@ -75,5 +81,16 @@ resource "aws_ecs_service" "prod_timeoff_service" {
   network_configuration {
     security_groups    = [var.aws_web_security_group_id]
     subnets            = [var.private_subnet_id_a, var.private_subnet_id_b]
+  }
+}
+
+resource "null_resource" "ecs_service_update" {
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "aws ecs update-service --cluster ${aws_ecs_cluster.prod_ecs_cluster.name} --service ${aws_ecs_service.prod_timeoff_service.name} --force-new-deployment --region us-east-1"
   }
 }
