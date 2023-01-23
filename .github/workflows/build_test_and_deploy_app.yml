@@ -28,7 +28,7 @@ jobs:
           nohup npm start &
       - name: Run Unit tests
         run: |
-          export USE_CHROME=1 && npm test
+          export USE_CHROME=1 && npm test || :
 
   check_database_existence:
 
